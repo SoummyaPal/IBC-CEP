@@ -1,1 +1,101 @@
 
+use std::io;
+
+struct Employee {
+    employee_name: String,
+    employee_id: i32,
+    email: String,
+    age: u32,
+    phone_number: String,
+}
+
+fn get_employee_by_id(employees: &[Employee], id: i32) -> Option<&Employee> {
+    employees.iter().find(|&employee| employee.employee_id == id)
+}
+
+fn get_employees_by_age(employees: &[Employee], age: u32) -> Vec<&Employee> {
+    employees.iter().filter(|&employee| employee.age == age).clone().collect()
+}
+
+fn read_input(prompt: &str) -> String {
+    let mut input = String::new();
+    println!("{}", prompt);
+    io::stdin().read_line(&mut input).expect("Failed to read input");
+    input.trim().to_string()
+}
+
+fn main() {
+    let mut employees: Vec<Employee> = Vec::new();
+
+    println!("Welcome to the Employee Data Collection Program!");
+
+    loop {
+        println!("What would you like to do?");
+        println!("1. Add Employee");
+        println!("2. Search Employee by ID");
+        println!("3. Search Employees by Age");
+        println!("4. Exit");
+
+        let choice = read_input("Enter your choice:");
+
+        match choice.parse::<u32>() {
+            Ok(1) => {
+                let employee_name = read_input("Enter employee name:");
+                let employee_id = read_input("Enter employee ID:")
+                    .parse::<i32>()
+                    .expect("Invalid employee ID. Please enter a valid number.");
+                let email = read_input("Enter email:");
+                let age = read_input("Enter age:")
+                    .parse::<u32>()
+                    .expect("Invalid age. Please enter a valid number.");
+                let phone_number = read_input("Enter phone number:");
+
+                let employee = Employee {
+                    employee_name,
+                    employee_id,
+                    email,
+                    age,
+                    phone_number,
+                };
+
+                employees.push(employee);
+                println!("Employee added successfully!");
+            }
+            Ok(2) => {
+                let search_id = read_input("Enter employee ID to search for:")
+                    .parse::<i32>()
+                    .expect("Invalid employee ID. Please enter a valid number.");
+
+                if let Some(employee) = get_employee_by_id(&employees, search_id) {
+                    println!("Employee found:\nName: {}\nEmployee ID: {}\nEmail: {}\nAge: {}\nPhone Number: {}",
+                        employee.employee_name, employee.employee_id, employee.email, employee.age, employee.phone_number);
+                } else {
+                    println!("Employee not found.");
+                }
+            }
+            Ok(3) => {
+                let search_age = read_input("Enter age to search for:")
+                    .parse::<u32>()
+                    .expect("Invalid age. Please enter a valid number.");
+
+                let employees_with_same_age = get_employees_by_age(&employees, search_age);
+                if employees_with_same_age.is_empty() {
+                    println!("No employees found with age {}.", search_age);
+                } else {
+                    println!("Employees with age {}:", search_age);
+                    for employee in employees_with_same_age {
+                        println!("Name: {}\nEmployee ID: {}\nEmail: {}\nAge: {}\nPhone Number: {}\n",
+                            employee.employee_name, employee.employee_id, employee.email, employee.age, employee.phone_number);
+                    }
+                }
+            }
+            Ok(4) => {
+                println!("Exiting program. Goodbye!");
+                break;
+            }
+            _ => {
+                println!("Invalid choice. Please select a valid option.");
+            }
+        }
+    }
+}
